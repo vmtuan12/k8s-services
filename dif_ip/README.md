@@ -10,7 +10,7 @@ kompose convert
 <p>Create deployments and services<p>
 
 ```
-kubectl apply -f kafka-deployment.yaml,zookeeper-deployment.yaml,kafka-service.yaml,zookeeper-service.yaml,kafka-data-persistentvolumeclaim.yaml,zookeeper-data-persistentvolumeclaim.yaml
+kubectl apply -f zookeeper-deployment.yaml,zookeeper-service.yaml,zookeeper-data-persistentvolumeclaim.yaml,kafka-deployment.yaml,kafka-service.yaml,kafka-data-persistentvolumeclaim.yaml
 ```
 
 <p>Delete deployments and services<p>
