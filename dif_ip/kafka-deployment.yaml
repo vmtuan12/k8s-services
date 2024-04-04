@@ -38,7 +38,7 @@ spec:
             - name: ALLOW_PLAINTEXT_LISTENER
               value: "yes"
             - name: KAFKA_CFG_ADVERTISED_LISTENERS
-              value: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+              value: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://192.168.56.63:29092
             - name: KAFKA_CFG_LISTENERS
               value: PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
             - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
