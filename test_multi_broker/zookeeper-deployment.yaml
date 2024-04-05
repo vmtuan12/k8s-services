@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: zookeeper
+  name: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: zookeeper
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/test-multi-broker-default: "true"
+        io.kompose.service: zookeeper
+    spec:
+      containers:
+        - env:
+            - name: ZOO_MY_ID
+              value: "1"
+            - name: ZOO_PORT
+              value: "2181"
+            - name: ZOO_SERVERS
+              value: server.1=zookeeper:2888:3888
+          image: zookeeper:3.4.9
+          name: zookeeper
+          ports:
+            - containerPort: 2181
+              hostPort: 2181
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data
+              name: zookeeper-claim0
+            - mountPath: /datalog
+              name: zookeeper-claim1
+      hostname: zookeeper
+      restartPolicy: Always
+      volumes:
+        - name: zookeeper-claim0
+          persistentVolumeClaim:
+            claimName: zookeeper-claim0
+        - name: zookeeper-claim1
+          persistentVolumeClaim:
+            claimName: zookeeper-claim1
