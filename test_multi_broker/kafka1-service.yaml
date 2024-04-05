@@ -7,6 +7,9 @@ metadata:
 spec:
   type: NodePort
   ports:
+    - name: "19091"
+      port: 19091
+      targetPort: 19091
     - name: "9091"
       port: 9091
       targetPort: 9091
