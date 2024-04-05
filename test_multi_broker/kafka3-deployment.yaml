@@ -44,10 +44,9 @@ spec:
           image: confluentinc/cp-kafka:5.3.0
           name: kafka-broker-3
           ports:
-            - containerPort: 9093
+            - containerPort: 29093
               hostPort: 9093
               protocol: TCP
-            - containerPort: 29093
           volumeMounts:
             - mountPath: /var/lib/kafka/data
               name: kafka3-claim0
