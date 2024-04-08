@@ -18,3 +18,15 @@ kubectl apply -R -f /home/vagrant/kafka_workspace/test_multi_broker
 ```
 kubectl delete deployments/zookeeper deployments/kafka1 deployments/kafka2 deployments/kafka3 services/zookeeper services/kafka1 services/kafka2 services/kafka3 pvc/zookeeper-claim0 pvc/zookeeper-claim1 pvc/kafka1-claim0 pvc/kafka2-claim0 pvc/kafka3-claim0
 ```
+
+<p>Find file<p>
+
+```
+find . -name "*console*"
+```
+
+<p>View msg<p>
+
+```
+./usr/bin/kafka-console-consumer --bootstrap-server 192.168.56.61:30001 --topic test --from-beginning
+```
