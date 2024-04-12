@@ -74,6 +74,8 @@ services:
       - kafka2
       - kafka3
     ports:
-      - "9000:9000"
+      - "9123:9123"
     environment:
-      KAFKA_BROKERCONNECT: kafka1:19091,kafka2:29092,kafka1:29093
+      SERVER_PORT: 9123
+      MANAGEMENT_SERVER_PORT: 9123
+      KAFKA_BROKERCONNECT: kafka-broker-1:19091,kafka-broker-2:29092,kafka-broker-3:29093

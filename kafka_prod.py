@@ -4,12 +4,21 @@ import datetime
 
 producer = KafkaProducer(bootstrap_servers=['localhost:9091', 'localhost:9092', 'localhost:9093'], 
                         value_serializer=lambda x: json.dumps(x).encode('utf-8'))
-topic = 'rep-3'
+topic = 'replication-3'
 
 msg = {
     "time": str(datetime.datetime.now())
 }
 
-producer.send(topic, value=msg)
+url_msg = {
+    "sslsni": "fDjgKlI",
+    "subscriberid": "eRgHbZ",
+    "hour_key": str(datetime.datetime.now()),
+    "count": "37",
+    "up": "25",
+    "down": "12"
+}
+
+producer.send(topic, value=url_msg)
 producer.flush()
-print(msg)
+print(url_msg)
