@@ -19,9 +19,11 @@ spark = SparkSession.builder \
     .master("spark://mhtuan-HP:7077") \
     .getOrCreate()
 
+# failOnDataLoss: https://stackoverflow.com/questions/64922560/pyspark-and-kafka-set-are-gone-some-data-may-have-been-missed
 df = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "localhost:9091,localhost:9092,localhost:9093") \
+    .option("failOnDataLoss", "false") \
     .option("subscribe", "test-url-1204") \
     .load()
 json_df = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING) as msg_value")
