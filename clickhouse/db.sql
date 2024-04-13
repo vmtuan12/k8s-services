@@ -1,12 +1,12 @@
 CREATE TABLE raw
 (
-    `date` Date,
     `sslsni` String,
     `subscriberid` CHAR(30),
     `hour_key` UInt8,
     `count` UInt16,
     `up` UInt64,
-    `down` UInt64
+    `down` UInt64,
+    `date` Date
 )
 ENGINE = MergeTree
 PRIMARY KEY (subscriberid, date, sslsni)
