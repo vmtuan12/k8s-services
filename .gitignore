@@ -2,3 +2,4 @@ data/
 mdo_tcp*
 *.ipynb
 checkpoint_dir/
+.env
