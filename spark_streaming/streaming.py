@@ -1,7 +1,20 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType, StructField, StructType, IntegerType
 from pyspark.sql.functions import from_json, explode, col, current_date
-from datetime import date
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+CLICKHOUSE_HOST = os.getenv('CLICKHOUSE_HOST')
+CLICKHOUSE_PORT = os.getenv('CLICKHOUSE_PORT')
+CLICKHOUSE_USER = os.getenv('CLICKHOUSE_USER')
+CLICKHOUSE_PASSWORD = os.getenv('CLICKHOUSE_PASSWORD')
+
+KAFKA_HOST = os.getenv('KAFKA_HOST')
+KAFKA_BROKER1_PORT = os.getenv('KAFKA_BROKER1_PORT')
+KAFKA_BROKER2_PORT = os.getenv('KAFKA_BROKER2_PORT')
+KAFKA_BROKER3_PORT = os.getenv('KAFKA_BROKER3_PORT')
 
 json_schema = StructType([
     StructField('sslsni', StringType(), True),
@@ -17,9 +30,9 @@ def foreach_batch_function(df, epoch_id):
         .format("jdbc") \
         .mode("append") \
         .option("driver", "com.github.housepower.jdbc.ClickHouseDriver") \
-        .option("url", "jdbc:clickhouse://127.0.0.1:9000") \
-        .option("user", "default") \
-        .option("password", "tuan281203") \
+        .option("url", f"jdbc:clickhouse://{CLICKHOUSE_HOST}:{CLICKHOUSE_PORT}") \
+        .option("user", CLICKHOUSE_USER) \
+        .option("password", CLICKHOUSE_PASSWORD) \
         .option("dbtable", "default.raw") \
         .save()
 
@@ -36,7 +49,7 @@ if __name__ == '__main__':
     # failOnDataLoss: https://stackoverflow.com/questions/64922560/pyspark-and-kafka-set-are-gone-some-data-may-have-been-missed
     df = spark.readStream \
         .format("kafka") \
-        .option("kafka.bootstrap.servers", "localhost:9091,localhost:9092,localhost:9093") \
+        .option("kafka.bootstrap.servers", f"{KAFKA_HOST}:{KAFKA_BROKER1_PORT},{KAFKA_HOST}:{KAFKA_BROKER2_PORT},{KAFKA_HOST}:{KAFKA_BROKER3_PORT}") \
         .option("failOnDataLoss", "false") \
         .option("subscribe", "test-url-1204") \
         .load()
