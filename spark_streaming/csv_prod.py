@@ -16,15 +16,22 @@ df = pd.read_csv('mdo_tcp.20231231.03', dtype= {
 })
 
 for index, row in df.iterrows():
-    url_msg = {
-        "sslsni": row['sslsni'],
-        "subscriberid": row['subscriberid'],
-        "hour_key": row['hour_key'],
-        "count": row['count(1)'],
-        "up": row['UP'],
-        "down": row['DOWN']
-    }
+    try:
+        if any(pd.isna(x) for x in row):
+            continue
+        
+        url_msg = {
+            "sslsni": row['sslsni'],
+            "subscriberid": row['subscriberid'],
+            "hour_key": int(row['hour_key']),
+            "count": int(row['count(1)']),
+            "up": int(row['UP']),
+            "down": int(row['DOWN'])
+        }
 
-    producer.send(topic, value=url_msg)
-    producer.flush()
-    print(url_msg)
+        producer.send(topic, value=url_msg)
+        producer.flush()
+        print(url_msg)
+    except:
+        # add more logic here to control error
+        continue
