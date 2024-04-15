@@ -30,7 +30,7 @@ def foreach_batch_function(df, epoch_id):
         .format("jdbc") \
         .mode("append") \
         .option("driver", "com.github.housepower.jdbc.ClickHouseDriver") \
-        .option("url", f"jdbc:clickhouse://{CLICKHOUSE_HOST}:{CLICKHOUSE_PORT}") \
+        .option("url", "jdbc:clickhouse://" + CLICKHOUSE_HOST + ":" + CLICKHOUSE_PORT) \
         .option("user", CLICKHOUSE_USER) \
         .option("password", CLICKHOUSE_PASSWORD) \
         .option("dbtable", "default.raw") \
