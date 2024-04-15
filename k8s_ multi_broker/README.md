@@ -30,3 +30,21 @@ find . -name "*console*"
 ```
 ./usr/bin/kafka-console-consumer --bootstrap-server 192.168.56.61:30001 --topic test --from-beginning
 ```
+
+<p>Create topic<p>
+
+```
+./usr/bin/kafka-topics --create --topic test-url-1504 --partitions 3 --replication-factor 3 --bootstrap-server 192.168.56.61:9091
+```
+
+<p>List topic<p>
+
+```
+./usr/bin/kafka-topics --list --bootstrap-server 192.168.56.61:9091
+```
+
+<p>Describe topic<p>
+
+```
+./usr/bin/kafka-topics --describe --topic test-url-1504 --bootstrap-server 192.168.56.61:9091
+```
