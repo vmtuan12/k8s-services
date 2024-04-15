@@ -1,7 +1,7 @@
 CREATE TABLE raw
 (
     `sslsni` String,
-    `subscriberid` CHAR(30),
+    `subscriberid` CHAR(15),
     `hour_key` UInt8,
     `count` UInt16,
     `up` UInt64,
@@ -13,7 +13,7 @@ PRIMARY KEY (subscriberid, date, sslsni)
 
 CREATE TABLE top_url
 (
-    `subscriberid` CHAR(30),
+    `subscriberid` CHAR(15),
     `sslsni` String,
     `total_up` UInt64,
     `total_down` UInt64,
