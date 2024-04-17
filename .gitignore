@@ -4,3 +4,4 @@ mdo_tcp*
 checkpoint_dir/
 .env
 test*
+*.log
