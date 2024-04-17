@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType, StructField, StructType, IntegerType
-from pyspark.sql.functions import from_json, explode, col, current_date
+from pyspark.sql.functions import from_json,current_timestamp
 import os
 from dotenv import load_dotenv
 
@@ -33,7 +33,7 @@ def foreach_batch_function(df, epoch_id):
         .option("url", "jdbc:clickhouse://" + CLICKHOUSE_HOST + ":" + CLICKHOUSE_PORT) \
         .option("user", CLICKHOUSE_USER) \
         .option("password", CLICKHOUSE_PASSWORD) \
-        .option("dbtable", "default.raw") \
+        .option("dbtable", "default.raw_url") \
         .save()
 
 if __name__ == '__main__':
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     exploded_df = json_expanded_df.select("sslsni", "subscriberid", "hour_key", "count", "up", "down") 
 
-    df_with_date = exploded_df.withColumn("date", current_date())
+    df_with_date = exploded_df.withColumn("inserted_time", current_timestamp())
 
     writing_df = df_with_date \
         .writeStream \
