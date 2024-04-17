@@ -1,4 +1,4 @@
-CREATE TABLE raw
+CREATE TABLE raw_url
 (
     `sslsni` String,
     `subscriberid` CHAR(15),
@@ -6,10 +6,10 @@ CREATE TABLE raw
     `count` UInt16,
     `up` UInt64,
     `down` UInt64,
-    `date` Date
+    `inserted_time` DATETIME64
 )
 ENGINE = MergeTree
-PRIMARY KEY (subscriberid, date, sslsni)
+PRIMARY KEY (subscriberid, sslsni);
 
 CREATE TABLE top_url
 (
@@ -17,9 +17,11 @@ CREATE TABLE top_url
     `sslsni` String,
     `total_up` UInt64,
     `total_down` UInt64,
-    `frequent_hour_key` Map(UInt8, UInt64),
-    `total_access_count` UInt64
+    `frequent_hour_key_Map` Nested(
+        `hour_key` UInt8,
+        `count` UInt32
+    )
 )
-ENGINE = MergeTree
-PRIMARY KEY (subscriberid, sslsni)
+ENGINE = SummingMergeTree
+PRIMARY KEY (subscriberid, sslsni);
 
