@@ -5,3 +5,4 @@ checkpoint_dir/
 .env
 test*
 *.log
+log*
