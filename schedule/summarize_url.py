@@ -31,6 +31,7 @@ if __name__ == '__main__':
     arr_rows = get_array_result(f"SELECT subscriberid, sslsni, up, down, [hour_key], [count] FROM raw_url WHERE inserted_time > '{latest_record_time}'")
     
     if latest_record_time != '1970-01-01 00:00:00.000':
+        # consider deleting old records
         arr_expired_rows = get_array_result(f"SELECT subscriberid, sslsni, up, down, [hour_key], [-count] \
                                             FROM raw_url WHERE inserted_time <= toDateTime(date_sub(DAY, 6, toDate('{latest_record_time}')))")
         arr_rows += arr_expired_rows
