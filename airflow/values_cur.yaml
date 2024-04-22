@@ -2518,7 +2518,7 @@ dags:
     # Go-style duration string (e.g. "100ms" or "0.1s" = 100ms).
     # For backwards compatibility, wait will be used if it is specified.
     period: 5s
-    wait: ~
+    # wait: 1
 
     containerName: git-sync
     uid: 65533
