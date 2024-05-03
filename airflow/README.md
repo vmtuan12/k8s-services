@@ -3,7 +3,7 @@
 <p>Command to run<p>
 
 ```
-helm upgrade --install airflow apache-airflow/airflow -f values_cur.yaml --namespace airflow --set dags.gitSync.env[0].value='<git-username>' --set dags.gitSync.env[1].value='<git-token>'
+helm upgrade --install airflow apache-airflow/airflow -f values_cur.yaml --namespace airflow
 ```
 
 <p>Create secret that contains key for web server<p>
