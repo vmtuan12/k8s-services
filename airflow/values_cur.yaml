@@ -620,7 +620,7 @@ workers:
     # Enable persistent volumes
     enabled: true
     # Volume size for worker StatefulSet
-    size: 20Gi
+    size: 2Gi
     # If using a custom storageClass, pass name ref to all statefulSets here
     storageClassName:
     # Execute init container to chown log directory.
@@ -788,7 +788,7 @@ workers:
   #         - "ReadWriteOnce"
   #       resources:
   #         requests:
-  #           storage: "20Gi"
+  #           storage: "2Gi"
 
 # Airflow scheduler settings
 scheduler:
@@ -909,7 +909,16 @@ scheduler:
 
   # Select certain nodes for airflow scheduler pods.
   nodeSelector: {}
-  affinity: {}
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 50
+          preference:
+            matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - "worker-node"
   # default scheduler affinity is:
   #  podAntiAffinity:
   #    preferredDuringSchedulingIgnoredDuringExecution:
@@ -1306,12 +1315,12 @@ webserver:
   webserverConfigConfigMapName: ~
 
   service:
-    type: ClusterIP
+    type: NodePort
     ## service annotations
     annotations: {}
-    ports:
-      - name: airflow-ui
-        port: "{{ .Values.ports.airflowUI }}"
+    # ports:
+    #   - name: airflow-ui
+    #     port: "{{ .Values.ports.airflowUI }}"
     # To change the port used to access the webserver:
     # ports:
     #   - name: airflow-ui
@@ -1324,11 +1333,11 @@ webserver:
     #     targetPort: 8888
     # If you have a public IP, set NodePort to set an external port.
     # Service type must be 'NodePort':
-    # ports:
-    #   - name: airflow-ui
-    #     port: 8080
-    #     targetPort: 8080
-    #     nodePort: 31151
+    ports:
+      - name: airflow-ui
+        port: 8080
+        targetPort: 8080
+        nodePort: 31151
     loadBalancerIP: ~
     ## Limit load balancer source ips to list of CIDRs
     # loadBalancerSourceRanges:
@@ -1338,7 +1347,16 @@ webserver:
   # Select certain nodes for airflow webserver pods.
   nodeSelector: {}
   
-  affinity: {}
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 50
+          preference:
+            matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - "worker-node"
   # default webserver affinity is:
   #  podAntiAffinity:
   #    preferredDuringSchedulingIgnoredDuringExecution:
@@ -1431,7 +1449,7 @@ triggerer:
     # Enable persistent volumes
     enabled: true
     # Volume size for triggerer StatefulSet
-    size: 20Gi
+    size: 2Gi
     # If using a custom storageClass, pass name ref to all statefulSets here
     storageClassName:
     # Execute init container to chown log directory.
@@ -1478,7 +1496,16 @@ triggerer:
 
   # Select certain nodes for airflow triggerer pods.
   nodeSelector: {}
-  affinity: {}
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 50
+          preference:
+            matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - "worker-node"
   # default triggerer affinity is:
   #  podAntiAffinity:
   #    preferredDuringSchedulingIgnoredDuringExecution:
@@ -1908,7 +1935,16 @@ statsd:
 
   # Select certain nodes for StatsD pods.
   nodeSelector: {}
-  affinity: {}
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 50
+          preference:
+            matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - "worker-node"
   tolerations: []
   topologySpreadConstraints: []
 
@@ -2446,25 +2482,23 @@ dags:
     # Annotations for dags PVC
     annotations: {}
     # Enable persistent volume for storing dags
-    enabled: false
+    enabled: true
     # Volume size for dags
-    size: 1Gi
+    size: 3Gi
     # If using a custom storageClass, pass name here
-    storageClassName:
+    storageClassName: nfs-client
     # access mode of the persistent volume
-    accessMode: ReadWriteOnce
+    accessMode: ReadOnlyMany
     ## the name of an existing PVC to use
-    existingClaim:
+    existingClaim: airflow-local-dags-folder
     ## optional subpath for dag volume mount
     subPath: ~
   gitSync:
-    enabled: true
+    enabled: false
 
     # git repo clone url
     # ssh example: git@github.com:apache/airflow.git
     # https example: https://github.com/apache/airflow.git
-    repo: https://github.com/vmtuan12/test-gitsync-airflow.git
-    # repo: git@github.com:vmtuan12/test-gitsync-airflow.git
     branch: main
     rev: HEAD
     ref: main
@@ -2518,9 +2552,6 @@ dags:
     #   memory: 128Mi
 
 extraSecrets: {}
-  # airflow-ssh-secret:
-  #   data: |
-  #     gitSshKey: 'LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0KYjNCbGJuTnphQzFyWlhrdGRqRUFBQUFBQ21GbGN6STFOaTFqZEhJQUFBQUdZbU55ZVhCMEFBQUFHQUFBQUJDTlpaci92dApoTDVVYTUzanVYTHc5UUFBQUFFQUFBQUFFQUFBSVhBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFDQVFEWFl3MTBTQnhRCmt3K0FkNS9jQ2w0RUJqWi9ReG5WdmFHQUJBSnlaR0V5cStwLzdzeTZ2VEN0Tnl3SGVBa21kNGVvY3VXbUdmcUZDRFFlOUEKSW5xbjF5U2Z6QnJ6Mk9xb1UybnhEcHFHQnNJZHFOUERwa2c5WXpaRHhnMlVjVzFQYnUrbmU3d25RY2dURlhFWWU3bU50aQp6OHFuc2NBaEcrbjZVaDViZVR1aSs4OWdHNmQvQ2FXUEl4aXB5L0t1bWZGb1JnUktacHp3cmoyTkhyWjBQa2loWGFieThWClBDMFpFUFN2L2pabVJMMHVoVUZkTFFuLzRHek9UQlNYTTljeFI3M3FGY0RCdGliVStySmZBMXAxWVl5WHpVVVFFZ1RHbloKT3BmNXp2bk5ZNklPYjMwNVVYa0ZKZWdCOTVhMTFkb1phUHFLTjdvU1hYM2EzWjI0RHNxMWlZdWEzOXB0ZTBrUlVzVEU0agpOckcvcGhpUytTVkRmcDdtdUU5MWQ5NDMwVURtUCtFei9QcHBRS0p4QUFXTFI5bDBqdEhjYUhmTWd5RDB6aEVmMkJrb2FzCk0zWUUzWDgwN2RKUjNWN25QaFZFd3lKYWZlSjJ6bzllOFYwVU9mUFk4VFV4TEF1SXIxRlZpZ3Jueml0L3VMNmpIMkxVWUIKc1A5b0ZVdmFWNDNQaThrQWJ4R0puSEZmdnlJQ1ZCeUswT2lXU0VJTzl0K01YV0RocjdURU1Cd0NDRjBObko4b0l0Q2VvNwpLd2V5TFRpeU5DQ3FIWTBTNUcycEFQbEI5clNEcmJkd2RTVmk3dEQ3QTJ2V2tVeEs1bW1EZXJyMENCT3ZCdnF1Z3RrTXNFClRRcWhZY1ZxTExXeVFFdFhaKzdybncwZHV5YUp5dCtRT3ZFL3oxYk5LcHBRQUFCMUQ3anZ6TTc2eFZ3TFpVMTJRVUgxNlUKbEF1TDdGMDNUK2JubDdkM0g5MjRuVS8zb242d1pibnNTcW5LVzA2OEo0eHBWQ2R1VVgrMDdISGFNc0VQY29HR3ptcERULwpidW9uNHFaUGpwTGtxOFF5cUtobFdmcHdScUk0bG1jSTcrSFZBNHpnMWFmTXR2NllLaWh4Rno5MUc4M3hXVGwrVlkrNUMwCkp5WEFkNmVlWXNQZkRrQmkrTU5sd1c1VlNPWDhNSW9aS2kwZkIrazhUTTE5NkNEd1ZiSUpSQWNnS2R5MkFGVmJvSVRmS2oKODF5SnFkdE04Z0xJKzJ0cm9FSXJMQTBITUF1MUJVRWZyVHREemlibW5TMXV0R0xGbm9OUjZwRTFZZkdXdk1IOWpiZTJUNQoydzNZNkRZTUVIQ3JobFRRZjg1Nm12eUdJNU9CYXhMTEpxM2IzSlV0c0FjS1pveVEvRE9EZXYyQXJMZ1drazhOM01JOVkrCnNwTXp0TmJRZXJQV3VWRktCUXBHWlg5S3VEeHF0RFFoMExtWEluRUJJTTg0NWV6ZVRhdGgrTGdXMWxxOURHUUYyVXNvSVoKTU41TVFkS011dWRpMWZVNkNKeTB4eER6OUdzeHFnRGZPRHUzaFMvOGUyZksxSktVdkVMVml3RW9KU2JZTjdkTEIwY0FZawppc004N2liem1WUFFxanY3OUp0ZnFqNHZoQWdrcUFZbi9xZUMrUnNlUjN4YnRyNGRIeEVrdnhBV21jbXE1eVk4dzk2VWVoCnN1akxRdlVqZEV1aU9TeGVCREYyMGVuR2tpRHdYc0I4ZENkRjM3QnkvU3BIclNLNlZDZ00rSlNoSWZIK3FRaFRWZWwycDgKdTByOUFmQSsxTFhoUlFTZTh6MWZyS2tIZ0FneVFlL2FDc2xGTTQ1MnIrcEF3eEthcWJOTnB2NFRtRjdQUzlpeUxsWStKSApqaG42UHBRWlloTUxua2NUSWE2YUFmbkVDWTVja1VLQ3ZQQ3BsSHU0QXdaSFJMWFNndjVzdEtoSlp6N1h1QldZR3paeGlBCnBSR1pNeHhiMCtOYnNPaHNZTHhuWVVzMk8yaVlwUEQ0VnRndWVNaHlmblIyeFhRYTNGdUNFand2RG9KNnhjTlAzQVVrQnUKM3ZSbG9QUUpJeEdQNzFYbDJPbFBOZ0htbjZWUjZPU2ZDRytmeEs4ODJoRVNwV2lhZE5KWEhSOC9wMTE1c1VuWHEwbGU2SQp3SGZoYWtabHBZcm15TDVNOC94NUdKQm44R1B0MUJ3eDJuYU1uYlhteHltZFcxMjVFbUs1NVZkSEhzeFJhSFAxeGhSZWxxCjJQR1hWR0RZRmpoWmFCenhRZk4xQkc5MXY3dmphYVhYY29LV2xkNjFvZmo2UURkL0hsbEFkVjRkbUpwNktJd3ErQjcrVDcKSVdzQkV2dFZMWjRDUjBUQWVrQW9rUE5WOU1LRFJHUFZvVlZJMmlBdmpmNFpaTEFoTTJvd2Z5RDZDY2ROeENwb05RaDBMbAp2TTV0VlBTby9kZHpCRmt0SEd1WFVocW41dTM0MnFsZm4zMm54M1NLOUo0UWNnVUNHNEx2cXdGVHBKWTVhOEZpVmQ1STNuCi9LVEhMbjlTRnRMKy9NWldMNVh0ekJnYzdxY2F4a1lnWEc2a2ppYXEzQlhkaVByQUt5WDlJL3I5ankvUVpwU0RGTTBQQTUKbThYUHdRT3FiRGxyRkFWU211Yy9qL2hYUS9GWFFqQkwyd09xY3dCYkpTRkMrWUNPd1l1emFDcXRkN0NLbmxpOWtSbFZWcgpsNXc4bVB2OFIyT2RVeUVYK3VFQ291MkFKVjVEN1Jwd0w0ZU5keDU1T0RiSXZQNWY4Yi90QitPR0N1dGxmRGlUZXVTdHRPCnJZSkxRRGhVdVllQzNtM1pCZEZsWDRZbE9PbTNBSUNxY2RuMEJIZGhabzdKbURDVExyaVhkN0tMc2ZuMEJFZFA5UjV5eDEKLzQwYlVqVk1uN2tjQlZwRHphY3ZpckdLQksxMGZFeDNZWkV2a2doaHV0TzBCV1hJbEtyR0QyN2MvajI2eUtkeUxQMXFkWApBNmgrQVpuTUJFQ1pUZkdNNk5rUVlXL05uMUJ3eWFKRk1jM3RsdE5ZVDAyRlBDeE5lSkJSSEVSTEZXei9UTTdCelc2YnZoCjFUc0Y2Yng0VkpUMVRIVm1rRnd6OGlGK2NEWTJsaHg1OXlhVDBjRVBqMldQcDJRaHRBVTZZZDBScnZ2cmNMSmEvUGkrV1IKUG1oZHpMMzRBMENQMXJXdGMxdDI1aFNBRmp4ZUV4QkhEUWEvUXdHOTV4U3Fsd1YzbkpIVmFUdFFTcGVpNk1YeXpTenN6SgpoRDcxMGZicmdJSGlSbkRmZm5nbTJxNHBWWUl6SlNMeVA5RUhhOGVQZHpkcDZod2lRTE95bHUvUVdHNFZSVGMxU1J4cGxxClJPOWhYZTRjMVQrUDloYW0zbU9RRFYrVGxDQ1lUcnlINDlCc1pkdnJTb3JjVGZBTkM1a2NZRUxOL21BSmNxYkdheXZPeW4KTnM2Y1JCK2h1M2EyUTRwRU0yVnhCVkpLRGk5WlZxTEZCdFZ5cnBwTUJFWUg1bkdlRUc2YWxKa0IwTkxMT213dHl4b29scwp5NHlmdkNSVFFLeWxwVUJZa1VXUFR2NlZkRlBJNlg3WmZyWjhQYVFzUklHUGdIWEkwQmpUK1ByWk91OSt3ME1EZlNGWEExCkZKbGx0cnpUWSszMlpWRmsxZW9WRnhGbzBHQU5NY1pxYzVhdVc0b2R5K0V2VWhZRDZza2hoa2Q5M0dJMGV6YzNXK1JsSE8KS2IvNzlZbXpaWGgrNVZRYTcvNnJoYVFabWgwc3N2QW14dkVrTFBNZ1c0Q0lXSTNEcHlLcjJCczByT0JkRWxFcWdCVUd0OApqeXhrZzNQNFZWa21tNStGVTN2dlUzeHpyOVplbnYvakpVM3pkd1Voc29qQm5WUmxkVnpGejQzUElIbVMraWhxakViWDZPCmZNbWoySGNsVkdmMFppUUNZZGJVU0YzUVd1V1BGNmFWTDN2d2pHTDVxWSt4bDlWL3JMZVRxUllvVHlma3c3NmJFeGZJMG0KL2FCM2NDazhJTWgyMHUvcHVseVBIdEtqZ1NwcnVaWVFGek53SHBFeVpyT2VKOVNES1duRnJwZ3paeXN3a0xSa1NDVjdUVApMTWtGcmN2d2l0OThRTVRSbGNFamE1dHZvVVFZT3B2V1A1SGE0djAyK3pMMTZWczE5cE52eTIvbThMOHpleUxOaVdkSldyCnJGNTdDdHI4cVFyNmZ2WGxmak5pQWFDOUE9Ci0tLS0tRU5EIE9QRU5TU0ggUFJJVkFURSBLRVktLS0tLQo='
 logs:
   # Configuration for empty dir volume (if logs.persistence.enabled == false)
   # emptyDirConfig:
@@ -2531,10 +2562,10 @@ logs:
     # Enable persistent volume for storing logs
     enabled: true
     # Volume size for logs
-    size: 20Gi
+    size: 5Gi
     # Annotations for the logs PVC
     annotations: {}
     # If using a custom storageClass, pass name here
-    storageClassName:
+    storageClassName: nfs-client
     ## the name of an existing PVC to use
     existingClaim:
