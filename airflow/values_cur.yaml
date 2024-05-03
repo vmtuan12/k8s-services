@@ -18,8 +18,6 @@
 # Default values for airflow.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-git_user: ''
-git_token: ''
 # Provide a name to substitute for the full names of resources
 fullnameOverride: ""
 
