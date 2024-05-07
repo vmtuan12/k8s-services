@@ -77,7 +77,7 @@ diagnosticMode:
 image:
   registry: docker.io
   repository: bitnami/kafka
-  tag: 3.4.1-debian-11-r0
+  tag: 3.4.1
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -176,10 +176,10 @@ logsDirs: /bitnami/kafka/data
 maxMessageBytes: _1000012
 ## @param defaultReplicationFactor Default replication factors for automatically created topics
 ##
-defaultReplicationFactor: 1
+defaultReplicationFactor: 3
 ## @param offsetsTopicReplicationFactor The replication factor for the offsets topic
 ##
-offsetsTopicReplicationFactor: 1
+offsetsTopicReplicationFactor: 3
 ## @param transactionStateLogReplicationFactor The replication factor for the transaction topic
 ##
 transactionStateLogReplicationFactor: 1
@@ -194,7 +194,7 @@ numIoThreads: 8
 numNetworkThreads: 3
 ## @param numPartitions The default number of log partitions per topic
 ##
-numPartitions: 1
+numPartitions: 3
 ## @param numRecoveryThreadsPerDataDir The number of threads per data directory to be used for log recovery at startup and flushing at shutdown
 ##
 numRecoveryThreadsPerDataDir: 1
@@ -242,7 +242,7 @@ auth:
   clientProtocol: plaintext
   # Note: empty by default for backwards compatibility reasons, find more information at
   # https://github.com/bitnami/charts/pull/8902/
-  externalClientProtocol: ""
+  externalClientProtocol: plaintext
   interBrokerProtocol: plaintext
   ## @param auth.controllerProtocol Controller protocol. It is used with Kraft mode only.
   ##
@@ -595,7 +595,43 @@ nodeAffinityPreset:
 ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 ## Note: podAffinityPreset, podAntiAffinityPreset, and  nodeAffinityPreset will be ignored when it's set
 ##
-affinity: {}
+affinity:
+  nodeAffinity:                                                                                                     
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      preference:
+        matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - worker-node
+    - weight: 60
+      preference:
+        matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - worker-node-2
+    - weight: 20
+      preference:
+        matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - worker-node-3
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: apps.kubernetes.io/pod-index
+            operator: In
+            values:
+            - "1"
+            - "2"
+            - "0"
+        topologyKey: kubernetes.io/hostname
 ## @param nodeSelector Node labels for pod assignment
 ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
 ##
@@ -687,7 +723,7 @@ pdb:
 service:
   ## @param service.type Kubernetes Service type
   ##
-  type: ClusterIP
+  type: NodePort
   ## @param service.ports.client Kafka svc port for client connections
   ## @param service.ports.controller Kafka svc port for controller connections. It is used if "kraft.enabled: true"
   ## @param service.ports.internal Kafka svc port for inter-broker connections
@@ -703,8 +739,8 @@ service:
   ## NOTE: choose port between <30000-32767>
   ##
   nodePorts:
-    client: ""
-    external: ""
+    client: 31116
+    external: 31117
   ## @param service.sessionAffinity Control where client requests go, to the same pod or round-robin
   ## Values: ClientIP or None
   ## ref: https://kubernetes.io/docs/user-guide/services/
@@ -760,7 +796,7 @@ service:
 externalAccess:
   ## @param externalAccess.enabled Enable Kubernetes external cluster access to Kafka brokers
   ##
-  enabled: false
+  enabled: true
   ## External IPs auto-discovery configuration
   ## An init container is used to auto-detect LB IPs or node ports by querying the K8s API
   ## Note: RBAC might be required
@@ -809,7 +845,7 @@ externalAccess:
   service:
     ## @param externalAccess.service.type Kubernetes Service type for external access. It can be NodePort, LoadBalancer or ClusterIP
     ##
-    type: LoadBalancer
+    type: NodePort
     ## @param externalAccess.service.ports.external Kafka port used for external access when service type is LoadBalancer
     ##
     ports:
@@ -845,17 +881,19 @@ externalAccess:
     ## @param externalAccess.service.nodePorts Array of node ports used for each Kafka broker. Length must be the same as replicaCount
     ## e.g:
     ## nodePorts:
-    ##   - 30001
-    ##   - 30002
-    ##
+    ##   - 31111
+    ##   - 31112
+    ##   - 31113
+    
     nodePorts: []
     ## @param externalAccess.service.externalIPs Use distinct service host IPs to configure Kafka external listener when service type is NodePort. Length must be the same as replicaCount
     ## e.g:
-    ## externalIPs:
-    ##   - X.X.X.X
-    ##   - Y.Y.Y.Y
+    externalIPs:
+      - 192.168.56.61
+      - 192.168.56.62
+      - 192.168.56.63
     ##
-    externalIPs: []
+    # externalIPs: []
     ## @param externalAccess.service.useHostIPs Use service host IPs to configure Kafka external listener when service type is NodePort
     ##
     useHostIPs: false
