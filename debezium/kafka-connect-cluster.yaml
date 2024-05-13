@@ -7,6 +7,7 @@ metadata:
 spec:
   version: 3.4.1
   replicas: 3
+  image: 192.168.56.60:5000/debezium-connect-postgres:latest
   bootstrapServers: "192.168.56.61:9094,192.168.56.62:9094,192.168.56.63:9094"
   config:
     config.providers: secrets
