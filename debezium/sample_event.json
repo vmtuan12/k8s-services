@@ -1,0 +1,7 @@
+{
+    "before": null,
+    "after": { "id": 1, "name": "tuan-1" },
+    "op": "c",
+    "ts_ms": 1715935708896,
+    "transaction": null
+}
