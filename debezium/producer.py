@@ -8,9 +8,13 @@ cursor = conn.cursor()
 
 query = "INSERT INTO public.test_table (id, name) VALUES "
 
-for x in range(100, 2000):
-    time.sleep(0.2)
-    cursor.execute(query + f"({x},{'tuan' + str(x)})" + ";")
-        
+list_batch = []
+start = 160000
+while (start < 2500000):
+    list_batch.append([("(" + str(x) + ",'" + "tuan-" + str(x) + "')") for x in range(start, start + 1000)])
+    start += 1000
 
-conn.commit()
+
+for item in list_batch:
+    cursor.execute(query + ', '.join(item) + ";")
+    conn.commit()
