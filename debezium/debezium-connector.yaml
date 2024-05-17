@@ -8,6 +8,10 @@ spec:
   class: io.debezium.connector.postgresql.PostgresConnector
   tasksMax: 1
   config:
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: false
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter.schemas.enable: false
     tasks.max: 1
     database.hostname: 192.168.56.64
     database.port: 30810
@@ -17,3 +21,6 @@ spec:
     table.include.list: schema_tuan.test_table
     topic.prefix: postgre
     snapshot.mode: always
+    transforms: ReplaceField
+    transforms.ReplaceField.type: org.apache.kafka.connect.transforms.ReplaceField$Value
+    transforms.ReplaceField.exclude: schema
