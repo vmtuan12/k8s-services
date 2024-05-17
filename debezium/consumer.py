@@ -24,7 +24,7 @@ def fetch_data():
     for message in consumer:
         dict_msg = json.loads(message.value.decode('utf-8'))
 
-        value = dict_msg["payload"]["after"]
+        value = dict_msg["after"]
 
         # cursor.execute(query + ("(" + str(value['id']) + ",'" + str(value["name"]) + "')") + ";")
         # conn.commit()
